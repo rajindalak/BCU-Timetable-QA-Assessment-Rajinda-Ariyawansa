@@ -1,0 +1,126 @@
+{
+	"info": {
+		"_postman_id": "21d68868-739f-4599-91e2-78c119754ee0",
+		"name": "Contoso Timetable Integration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5229997"
+	},
+	"item": [
+		{
+			"name": "GET /course/page/{pageNumber}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const url = pm.request.url.toString();\r",
+							"let jsonData = {};\r",
+							"\r",
+							"try {\r",
+							"    jsonData = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    console.warn(\"No JSON response body.\");\r",
+							"}\r",
+							"\r",
+							"// status code (200) check\r",
+							"pm.test(\"Status code is 200 or an expected error\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is under 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// Valid page 1 with sortOptions=1 \r",
+							"if (url.includes(\"/course/page/1\") && url.includes(\"sortOptions=1\") && pm.response.code === 200) {\r",
+							"    pm.test(\"Total items is 50\", function () {\r",
+							"        pm.expect(jsonData.totalItems).to.eql(50);\r",
+							"    });\r",
+							"    // Validate 1st 2 records of the result set \r",
+							"    pm.test(\"First course is 'Generic Frozen Chips'\", function () {\r",
+							"        const course1 = jsonData.items[0];\r",
+							"        pm.expect(course1.id).to.eql(24);\r",
+							"        pm.expect(course1.name).to.eql(\"Generic Frozen Chips\");\r",
+							"        pm.expect(course1.code).to.eql(\"4531354111525\");\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Second course is 'Generic Frozen Shirt'\", function () {\r",
+							"        const course2 = jsonData.items[1];\r",
+							"        pm.expect(course2.id).to.eql(4);\r",
+							"        pm.expect(course2.name).to.eql(\"Generic Frozen Shirt\");\r",
+							"        pm.expect(course2.code).to.eql(\"5710339422491\");\r",
+							"    });\r",
+							"}\r",
+							"// Negative test: Invalid page number (-1) \r",
+							"if (url.includes(\"/course/page/-1\")) {\r",
+							"    pm.test(\"Invalid page number returns 400 or 404\", function () {\r",
+							"        pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"//  Negative Case: Invalid sortOption (name) \r",
+							"if (url.includes(\"sortOptions=name\")) {\r",
+							"    pm.test(\"Invalid sort option returns 400 with error details\", function () {\r",
+							"        pm.expect(pm.response.code).to.eql(400);\r",
+							"        pm.expect(jsonData).to.have.property(\"errors\");\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"//  Negative Case: Page with no records \r",
+							"if (url.includes(\"/course/page/999\")) {\r",
+							"    pm.test(\"No records returned gracefully\", function () {\r",
+							"        pm.expect(jsonData.items).to.be.an(\"array\");\r",
+							"        pm.expect(jsonData.items.length).to.eql(0);\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7437/course/page/{{pageNumber}}?sortOptions={{sortOptions}}\n",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7437",
+					"path": [
+						"course",
+						"page",
+						"{{pageNumber}}"
+					],
+					"query": [
+						{
+							"key": "sortOptions",
+							"value": "{{sortOptions}}\n"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
