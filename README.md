@@ -1,6 +1,8 @@
 #  BCU Timetable QA Assessment  
 **Author:** Rajinda Ariyawansa 
-**email:** rajinda_lak@yahoo.com 
+**Email:** rajinda_lak@yahoo.com
+**branch:** https://github.com/rajindalak/BCU-Timetable-QA-Assessment-Rajinda-Ariyawansa/tree/master
+
 
 ---
 
